@@ -13,6 +13,12 @@ and the SMS code is simulated on screen.
 **Try it:** open the live demo and tap **Use** on the demo account card on the sign-in screen,
 then enter the simulated code shown in the notification at the top of the screen.
 
+**Android app:** download **[finnova.apk](https://tngfranklin.github.io/finnova-web/finnova.apk)** on
+your phone and install it (allow installing from your browser when Android asks). It is a
+sandbox demo signed with a debug key, so Play Protect may warn that it is from an unknown
+developer. In the app, **Scan & pay** uses the camera to pay the QR code shown on
+**My QR code** in the web demo.
+
 ## Screenshots
 
 | Sign in | Two-step verification |
