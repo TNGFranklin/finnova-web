@@ -41,6 +41,14 @@
     For more details:
     * https://docs.flutter.dev/platform-integration/web/initialization
   -->
+  <script>
+    // Opened from a payment QR code (Google Lens / phone camera): hand the link
+    // to the app and clean the address bar so a reload cannot pay twice.
+    if (/[?&]pay=/.test(location.search)) {
+      window.finnovaPayLink = location.href;
+      history.replaceState(null, '', location.pathname + location.hash);
+    }
+  </script>
   <script src="flutter_bootstrap.js" async></script>
 </body>
 </html>
