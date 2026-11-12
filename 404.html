@@ -18,21 +18,50 @@
 
   <meta charset="UTF-8">
   <meta content="IE=Edge" http-equiv="X-UA-Compatible">
-  <meta name="description" content="A new Flutter project.">
+  <meta name="description" content="FinNova Wallet: a multicurrency digital wallet with QR payments, mobile money, bank transfers and a blockchain bank (demo).">
+  <meta name="theme-color" content="#060A16">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 
   <!-- iOS meta tags & icons -->
   <meta name="mobile-web-app-capable" content="yes">
-  <meta name="apple-mobile-web-app-status-bar-style" content="black">
-  <meta name="apple-mobile-web-app-title" content="finnova_payment_app">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="FinNova">
   <link rel="apple-touch-icon" href="icons/Icon-192.png">
 
   <!-- Favicon -->
   <link rel="icon" type="image/png" href="favicon.png"/>
 
-  <title>finnova_payment_app</title>
+  <title>FinNova Wallet</title>
   <link rel="manifest" href="manifest.json">
+  <style>
+    /* Shown while the app downloads: the same dark backdrop as the app, so
+       there is no white flash, with the logo tile fading in. */
+    html, body { margin: 0; height: 100%; background: #060A16; }
+    #finnova-splash {
+      position: fixed; inset: 0; display: flex; flex-direction: column;
+      align-items: center; justify-content: center; gap: 18px;
+      background: radial-gradient(circle at 30% 20%, #10324a 0%, #060A16 55%);
+      transition: opacity .5s ease; z-index: 0;
+    }
+    #finnova-splash img {
+      width: 96px; height: 96px; border-radius: 22.5%;
+      box-shadow: 0 18px 50px rgba(99, 102, 241, .45);
+      animation: finnova-pop .9s cubic-bezier(.2, .9, .3, 1.2) both;
+    }
+    #finnova-splash span {
+      font: 800 22px/1 system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+      letter-spacing: -.4px; color: #F1F5F9; animation: finnova-rise .9s .15s ease-out both;
+    }
+    #finnova-splash span b {
+      background: linear-gradient(90deg, #2DD4BF, #6366F1, #8B5CF6);
+      -webkit-background-clip: text; background-clip: text; color: transparent;
+    }
+    @keyframes finnova-pop { from { opacity: 0; transform: scale(.7) translateY(10px); } to { opacity: 1; transform: none; } }
+    @keyframes finnova-rise { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: none; } }
+  </style>
 </head>
 <body>
+  <div id="finnova-splash"><img src="icons/Icon-192.png" alt=""><span>Fin<b>Nova</b></span></div>
   <!--
     You can customize the "flutter_bootstrap.js" script.
     This is useful to provide a custom configuration to the Flutter loader
@@ -48,6 +77,15 @@
       window.finnovaPayLink = location.href;
       history.replaceState(null, '', location.pathname + location.hash);
     }
+  </script>
+  <script>
+    // Fade the splash out once Flutter has drawn its first frame.
+    window.addEventListener('flutter-first-frame', function () {
+      var splash = document.getElementById('finnova-splash');
+      if (!splash) return;
+      splash.style.opacity = '0';
+      setTimeout(function () { splash.remove(); }, 600);
+    });
   </script>
   <script src="flutter_bootstrap.js" async></script>
 </body>

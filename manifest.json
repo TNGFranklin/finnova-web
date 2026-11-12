@@ -1,11 +1,11 @@
 {
-    "name": "finnova_payment_app",
-    "short_name": "finnova_payment_app",
+    "name": "FinNova Wallet",
+    "short_name": "FinNova",
     "start_url": ".",
     "display": "standalone",
-    "background_color": "#0175C2",
-    "theme_color": "#0175C2",
-    "description": "A new Flutter project.",
+    "background_color": "#060A16",
+    "theme_color": "#060A16",
+    "description": "A multicurrency digital wallet with QR payments, mobile money, bank transfers and a blockchain bank (demo).",
     "orientation": "portrait-primary",
     "prefer_related_applications": false,
     "icons": [
