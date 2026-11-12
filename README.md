@@ -7,8 +7,8 @@ digital wallet, peer-to-peer transfers, QR payments and a payment history, prote
 email + password and a simulated SMS one-time code.
 
 This repository only contains the compiled web build that GitHub Pages serves. The app is a
-demo: all data is stored locally in the visitor's own browser, nothing is sent to a server,
-and the SMS code is simulated on screen.
+demo: wallets, balances and history are stored locally on each device (the visitor's browser or phone),
+and the SMS code is simulated on screen. The only thing shared between devices is the payment relay (below), so a QR code shown on one device can be paid from another.
 
 **Try it:** open the live demo and tap **Use** on the demo account card on the sign-in screen,
 then enter the simulated code shown in the notification at the top of the screen.
@@ -40,4 +40,4 @@ developer. In the app, **Scan & pay** uses the camera to pay the QR code shown o
 ## Related
 
 The FinNova Bank REST API (Node.js, PostgreSQL, Docker, deployed to Azure App Service with
-GitHub Actions) is a separate project and is not called by this demo app.
+GitHub Actions) is a separate project. The app calls only its `/relay` routes: on sign-in each wallet registers its name there, scanning a QR looks the payee up, and payments wait in the payee's inbox until their device collects them (about every 10 seconds). Balances are not held by the server, so this is for demo money only. The free Azure plan sleeps when idle, so the first request can take up to a minute.
