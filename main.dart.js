@@ -52145,7 +52145,7 @@ break A}if(B.eE===r){s="This device cannot scan with its camera"
 break A}s="The camera could not start"
 break A}return s},
 gam9(){var s,r=this.c.a
-A:{if(B.fB===r){s="Allow the camera in Settings \u203a Apps \u203a FinNova Wallet \u203a Permissions, then come back. The scanner restarts by itself."
+A:{if(B.fB===r){s="Click the camera or lock icon in the address bar, choose Allow for the camera, then tap Try again."
 break A}if(B.eE===r){s="You can still pay by pasting the payment code or link."
 break A}s="Close other apps that use the camera and tap Try again."
 break A}return s},
