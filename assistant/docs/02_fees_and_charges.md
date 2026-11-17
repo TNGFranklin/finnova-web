@@ -15,8 +15,9 @@ All fees are shown on screen before you confirm a payment. Fees are charged on t
 - Example: converting 100.00 EUR costs a 0.50 EUR fee, and the remaining 99.50 EUR is converted at the current rate.
 
 ## Bill payments
-- Fee: 0.5 % of the bill, with a minimum of 0.10.
-- The fee is added to the bill. Example: a 40.00 bill costs 0.20 in fees, so 40.20 leaves your wallet.
+- Fee: 0.5 % of the bill. The fee is never lower than 0.10, so very small bills pay 0.10. The minimum and the percentage are NOT added together: you pay whichever is higher.
+- The fee is added to the bill. Example: a 40.00 bill has a fee of 0.20 (0.5 % of 40.00, which is more than 0.10), so 40.20 leaves your wallet.
+- Example: a 10.00 bill has a fee of 0.10 (0.5 % would be only 0.05, so the minimum applies), so 10.10 leaves your wallet.
 - Bill payments are checked against the monthly card limit.
 
 ## Adding money (top-up) fees

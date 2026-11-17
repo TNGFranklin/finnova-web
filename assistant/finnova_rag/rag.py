@@ -43,9 +43,20 @@ class FinNovaAssistant:
             persist_directory=str(config.VECTOR_DIR),
         )
         self.llm = ChatOllama(
-            model=config.CHAT_MODEL, base_url=config.OLLAMA_URL, temperature=0, num_ctx=4096
+            model=config.CHAT_MODEL,
+            base_url=config.OLLAMA_URL,
+            temperature=0,
+            num_ctx=config.NUM_CTX,
+            num_predict=config.MAX_ANSWER_TOKENS,
+            keep_alive=config.KEEP_ALIVE,
         )
         self.chain = PROMPT | self.llm | StrOutputParser()
+        self._cache: dict[str, Answer] = {}
+
+    def warm_up(self) -> None:
+        """Load both models into memory so the first real question is not slow."""
+        self.ask("warm up")
+        self._cache.clear()
 
     def retrieve(self, question: str):
         return self.store.similarity_search(question, k=config.TOP_K)
@@ -64,14 +75,40 @@ class FinNovaAssistant:
                 out.append({"file": key[0], "section": key[1]})
         return out
 
+    @staticmethod
+    def _key(question: str) -> str:
+        return " ".join(question.lower().split())
+
     def ask(self, question: str) -> Answer:
+        key = self._key(question)
+        if key in self._cache:
+            return self._cache[key]
         docs = self.retrieve(question)
         text = self.chain.invoke({"context": self._context(docs), "question": question})
-        return Answer(text.strip(), self._sources(docs))
+        answer = Answer(text.strip(), self._sources(docs))
+        self._remember(key, answer)
+        return answer
+
+    def _remember(self, key: str, answer: Answer) -> None:
+        if len(self._cache) >= 200:
+            self._cache.pop(next(iter(self._cache)))
+        self._cache[key] = answer
 
     def stream(self, question: str):
-        """Yield answer text pieces as the model writes them, then return the sources."""
+        """Yield answer text pieces as the model writes them, then return the sources.
+
+        A question asked before is answered instantly from the cache.
+        """
+        key = self._key(question)
+        if key in self._cache:
+            cached = self._cache[key]
+            yield cached.text
+            return cached.sources
         docs = self.retrieve(question)
+        pieces: list[str] = []
         for piece in self.chain.stream({"context": self._context(docs), "question": question}):
+            pieces.append(piece)
             yield piece
-        return self._sources(docs)
+        sources = self._sources(docs)
+        self._remember(key, Answer("".join(pieces).strip(), sources))
+        return sources

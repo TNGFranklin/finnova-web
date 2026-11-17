@@ -10,7 +10,7 @@ Card spending includes bill payments. A payment that would take you past the mon
 
 ## Paying bills
 On the Bills page choose a biller, enter the account or reference and the amount, and confirm.
-- Fee: 0.5 % of the bill, minimum 0.10, added on top of the bill.
+- Fee: 0.5 % of the bill, but never less than 0.10 (whichever is higher, not both), added on top of the bill.
 - The total (bill plus fee) is shown before you pay and must be available in your balance.
 - The payment is checked against the monthly card limit.
 - A bill can be repeated from History using the previous amount.

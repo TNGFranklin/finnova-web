@@ -43,6 +43,10 @@ ChromaDB needs the Microsoft Visual C++ runtime (`winget install Microsoft.VCRed
 .venv\Scripts\python -m uvicorn server:app --port 8001   # HTTP API for the app
 ```
 
+### In the FinNova app
+
+The app has an **Assistant** page (menu, Help section). It sends each question to this server and shows the answer with its sources. Start Ollama and the server first. On the same computer the default address `http://localhost:8001` works. From a phone, start the server with `--host 0.0.0.0`, allow port 8001 in the Windows firewall, and enter the computer's Wi-Fi address (for example `http://192.168.1.20:8001`) under the settings icon on the Assistant page.
+
 API: `POST http://localhost:8001/ask` with `{"question": "..."}` returns `{"answer": "...", "sources": [{"file", "section"}]}`. `GET /health` reports the models in use.
 
 Settings (models, folders, Ollama address) can be changed with environment variables listed in `finnova_rag/config.py`, for example `FINNOVA_CHAT_MODEL=qwen2.5:3b`.
@@ -50,6 +54,15 @@ Settings (models, folders, Ollama address) can be changed with environment varia
 ## Demo
 
 `DEMO.md` holds a recorded Q&A run: fees, limits, sign-in rules, currencies, mobile money, the blockchain limitation on Android, a question the documents answer only by omission (mortgages), and an unrelated question the assistant correctly declines.
+
+## Speed
+
+On a CPU the wait is mostly the model reading the prompt (about 55 tokens per second on a Ryzen 5 5625U), so:
+- Both models stay loaded for 30 minutes and are warmed up when the server starts.
+- The server talks to Ollama at `127.0.0.1`, because `localhost` added about 2 seconds per call on Windows (IPv6 lookup first).
+- Answers are streamed (`POST /ask/stream`), so words appear as they are written, and repeat questions are answered instantly from a cache.
+- Markdown tables are flattened before indexing and answers are capped at 300 tokens.
+- Tested and not kept: the integrated Radeon GPU (`OLLAMA_VULKAN=1 OLLAMA_IGPU_ENABLE=1`) reads prompts 1.7 times faster but writes 30 % slower. A smaller model such as `llama3.2:1b` would be faster still, at some cost in accuracy.
 
 ## Limits
 

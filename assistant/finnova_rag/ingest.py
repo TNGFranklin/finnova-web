@@ -1,5 +1,4 @@
 """Load the policy documents, split them, embed them and store them in ChromaDB."""
-import shutil
 import sys
 
 from langchain_chroma import Chroma
@@ -11,7 +10,38 @@ from . import config
 
 
 def embeddings() -> OllamaEmbeddings:
-    return OllamaEmbeddings(model=config.EMBED_MODEL, base_url=config.OLLAMA_URL)
+    return OllamaEmbeddings(
+        model=config.EMBED_MODEL, base_url=config.OLLAMA_URL, keep_alive=config.KEEP_ALIVE
+    )
+
+
+def flatten_tables(text: str) -> str:
+    """Turn Markdown tables into short "first cell: other cells" lines.
+
+    Pipes and dashes cost many tokens, and on a CPU every token the model has to
+    read is time. The header row and the |---| separator are dropped; the section
+    heading and the first column already say what each row is.
+    """
+
+    def is_row(line: str) -> bool:
+        s = line.strip()
+        return s.startswith("|") and s.endswith("|")
+
+    out: list[str] = []
+    in_table = False
+    for line in text.splitlines():
+        if not is_row(line):
+            in_table = False
+            out.append(line)
+            continue
+        cells = [c.strip() for c in line.strip().strip("|").split("|")]
+        if not in_table:
+            in_table = True  # first row of a table is its header
+            continue
+        if all(set(c) <= set("-: ") for c in cells):
+            continue  # the |---| separator
+        out.append(f"{cells[0]}: {', '.join(cells[1:])}")
+    return "\n".join(out)
 
 
 def load_chunks() -> list[Document]:
@@ -29,7 +59,7 @@ def load_chunks() -> list[Document]:
     )
     chunks: list[Document] = []
     for path in sorted(config.DOCS_DIR.glob("*.md")):
-        text = path.read_text(encoding="utf-8")
+        text = flatten_tables(path.read_text(encoding="utf-8"))
         for section in by_heading.split_text(text):
             title = section.metadata.get("title", path.stem)
             heading = section.metadata.get("section", "")
@@ -50,7 +80,13 @@ def build_index(reset: bool = True) -> int:
     if not chunks:
         raise SystemExit(f"No .md documents found in {config.DOCS_DIR}")
     if reset and config.VECTOR_DIR.exists():
-        shutil.rmtree(config.VECTOR_DIR)
+        # Drop the collection rather than deleting the folder: the folder can be
+        # locked by a file-sync service such as OneDrive.
+        Chroma(
+            collection_name=config.COLLECTION,
+            embedding_function=embeddings(),
+            persist_directory=str(config.VECTOR_DIR),
+        ).delete_collection()
     Chroma.from_documents(
         chunks,
         embeddings(),
